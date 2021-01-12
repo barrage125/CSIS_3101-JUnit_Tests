@@ -1,0 +1,1 @@
+All course java files must begin with the line "package com.CSIS3101.coursework;" when testing.
