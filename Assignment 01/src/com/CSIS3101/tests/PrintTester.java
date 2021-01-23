@@ -52,7 +52,6 @@ public class PrintTester {
 
     @Test
     public void testEmpStatus() {
-        assertTrue(outContent.toString().contains("Name"));
         assertTrue(outContent.toString().contains("Employment status (full-time, part-time, intern, student)"));
     }
 
@@ -74,7 +73,6 @@ public class PrintTester {
     @Test
     public void testCS() {
         assertTrue(outContent.toString().contains("Other CS or Tech course(s) taken (and where if not Nova)"));
-        assertTrue(outContent.toString().contains("Name"));
     }
 
     @Test
