@@ -66,7 +66,7 @@ public class SmallestOfThreeTest {
     @DisplayName("Correct Input Types")
     @Test
     public void testIntInput() {
-        in = new ByteArrayInputStream("1.0\n2D\n3F".getBytes());
+        in = new ByteArrayInputStream("1.0\n2.5\n3.8".getBytes());
         System.setIn(in);
         assertThrows(InputMismatchException.class, () -> {
             N00935506_02.main(null);
