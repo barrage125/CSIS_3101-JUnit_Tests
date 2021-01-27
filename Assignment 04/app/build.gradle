@@ -45,3 +45,18 @@ tasks.named('build') {
 tasks.named('clean') {
     dependsOn('cleanIdea', 'cleanEclipse')
 }
+
+task runWithJavaExec(type: JavaExec) {
+    doFirst {
+        if (!project.hasProperty("args")) {
+            throw new GradleException("A main class must be specified. Use -Pargs=<MainClassName>")
+        }
+    }
+    dependsOn('build')
+    group = 'Execution'
+    description = 'Run the main class with JavaExecTask'
+    classpath = sourceSets.main.runtimeClasspath
+    if (project.hasProperty("args")) {
+        main = project.property("args")
+    }
+}
