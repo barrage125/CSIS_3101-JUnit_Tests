@@ -3,10 +3,11 @@
 // Author:  Alexander Lotz
 // History: Version 1.0 January 26, 2021
 
-package custom.junit.jupiter;
+package custom.JUnit;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  *
  * @author  Alexander Lotz
  * @version 1.0
- * @since   01-28-2021
+ * @since   01-26-2021
  */
 public class FileMethodFactory {
     /**
@@ -39,33 +40,65 @@ public class FileMethodFactory {
      */
     private final ArrayList<Method> methodList = new ArrayList<>();
     /**
-     *
+     * desc.
      * @param className desc
      * @param methParamMap desc
      */
-    public FileMethodFactory(String className,
-                        Map<String, List<Class<?>[]>> methParamMap) throws
+    public FileMethodFactory(final String className,
+                        final Map<String, List<Class<?>[]>> methParamMap) throws
             MalformedURLException,
             ClassNotFoundException,
             NoSuchMethodException {
-        loadClass(className);
+        this(className, methParamMap, "");
+    }
+
+    /**
+     * desc.
+     * @param className desc
+     * @param methParamMap desc
+     * @param pkg desc
+     */
+    public FileMethodFactory(final String className,
+                             final Map<String, List<Class<?>[]>> methParamMap, final String pkg) throws
+            MalformedURLException,
+            ClassNotFoundException,
+            NoSuchMethodException {
+        loadClass(className, pkg);
         for (Map.Entry<String, List<Class<?>[]>> m : methParamMap.entrySet()) {
             loadMethod(m);
         }
     }
 
-    private void loadClass(String className) throws ClassNotFoundException,
-                                                    MalformedURLException {
+    public FileMethodFactory(final String className,
+                             final Map<String, List<Class<?>[]>> methParamMap,
+                             final URL dirURL) throws
+            ClassNotFoundException,
+            NoSuchMethodException {
+        loadClass(className, dirURL);
+        for (Map.Entry<String, List<Class<?>[]>> m : methParamMap.entrySet()) {
+            loadMethod(m);
+        }
+    }
+
+    private void loadClass(final String className, final String pkg) throws
+            ClassNotFoundException,
+            MalformedURLException {
         ClassLoader loader = Test.class.getClassLoader();
-        String pwd = Objects.requireNonNull(loader.getResource("coursetests"))
+        String pwd = Objects.requireNonNull(loader.getResource(pkg))
                 .toString();
-        pwd = pwd.substring(0, pwd.length() - "test/coursetests".length());
+        pwd = pwd.substring(0, pwd.length() - ("main/" + pkg).length());
         URL dirUrl = new URL("file:/" + pwd);
         URLClassLoader cl = new URLClassLoader(new URL[]{dirUrl});
         targetClass = cl.loadClass(className);
     }
 
-    private void loadMethod(Map.Entry<String, List<Class<?>[]>> m) throws
+    private void loadClass(final String className, final URL dirUrl) throws
+            ClassNotFoundException {
+        URLClassLoader cl = new URLClassLoader(new URL[]{dirUrl});
+        targetClass = cl.loadClass(className);
+    }
+
+    private void loadMethod(final Map.Entry<String, List<Class<?>[]>> m) throws
             NoSuchMethodException {
         if (m.getValue() == null) {
             Method loadedMethod = targetClass.getDeclaredMethod(m.getKey());
@@ -79,6 +112,10 @@ public class FileMethodFactory {
         }
     }
 
+    /**
+     * Streams.
+     * @return a stream
+     */
     public Stream<Object> methodCalls() {
            return Stream.of(
                 arguments("HelloWorld", "getGreeting")
@@ -86,17 +123,24 @@ public class FileMethodFactory {
     }
 
     /**
-     *
+     * desc.
      * @return {@link FileMethodFactory#targetClass}
      */
     public Class<?> getFactoryClass() {
         return targetClass;
     }
 
-    public List<String> getMethods() {
-        return new ArrayList<>();
+    /**
+     * desc.
+     * @return a List of Methods
+     */
+    public List<Method> getMethods() {
+        return methodList;
     }
 
+    /**
+     * Prints methods to {@link java.lang.System#out}.
+     */
     public void listMethods() {
         for (Method meth : methodList) {
             System.out.println(meth.getName());
@@ -106,7 +150,16 @@ public class FileMethodFactory {
         }
     }
 
-    public Method getMethod(String methodName, Object... args) throws
+    /**
+     * desc.
+     * @param methodName
+     * @param args
+     * @return desc
+     * @throws NoSuchMethodException
+     * @throws MethodOverloadException
+     */
+    public Method getMethod(final String methodName,
+                            final Object... args) throws
             NoSuchMethodException,
             MethodOverloadException {
         Method targetMethod = null;
@@ -133,7 +186,12 @@ public class FileMethodFactory {
         return targetMethod;
     }
 
-    public List<Class<?>> getMethodTypes(Method method) {
+    /**
+     * desc.
+     * @param method
+     * @return desc.
+     */
+    public List<Class<?>> getMethodTypes(final Method method) {
         return new ArrayList<>();
     }
 
@@ -150,10 +208,14 @@ public class FileMethodFactory {
      * @param <V>
      * @return  the Entry object containing the given key-value pair
      */
-    private static <K, V> Map.Entry<K, V> newEntry(K key, V value) {
+    private static <K, V> Map.Entry<K, V> newEntry(final K key,
+                                                   final V value) {
         return new AbstractMap.SimpleEntry<>(key, value);
     }
 
+    /**
+     * desc.
+     */
     public void treeMapBuilder() {
 
     }
@@ -168,7 +230,7 @@ public class FileMethodFactory {
      * @throws InvocationTargetException f
      * @throws IllegalAccessException f
      */
-    public Object invoke(String methodName, Object... args) throws
+    public Object invoke(final String methodName, final Object... args) throws
             InvocationTargetException,
             IllegalAccessException,
             NoSuchMethodException,
@@ -193,12 +255,24 @@ public class FileMethodFactory {
         }
     }
 
-    public Object invokeDirect(String methodName,
-                           List<Map.Entry<Class<?>, Object>> argsList) throws
-            InvocationTargetException,
-            IllegalAccessException,
-            NoSuchMethodException,
-            InstantiationException {
+    /**
+     * Invokes the specified method of the contained class.
+     *
+     * @param methodName desc
+     * @param argsList
+     * @return Returns the output of the invoked method or null
+     *         if the invoked method is void
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws InstantiationException
+     */
+    public Object invokeDirect(final String methodName,
+                               final List<Map.Entry<Class<?>, Object>> argsList)
+            throws InvocationTargetException,
+                   IllegalAccessException,
+                   NoSuchMethodException,
+                   InstantiationException {
         Object obj = targetClass.getDeclaredConstructor().newInstance();
         Class<?>[] argTypes = new Class<?>[argsList.size()];
         Object[] args = new Object[argsList.size()];
@@ -215,21 +289,45 @@ public class FileMethodFactory {
         }
     }
 
+    /**
+     * The MethodOverloadException.
+     *
+     * @author  Alexander Lotz
+     * @version 1.0
+     * @since   01-28-2021
+     */
     public static class MethodOverloadException extends Exception {
 
+        /**
+         * desc.
+         */
         public MethodOverloadException() {
             super();
         }
 
-        public MethodOverloadException(String message) {
+        /**
+         * desc.
+         * @param message
+         */
+        public MethodOverloadException(final String message) {
             super(message);
         }
 
-        public MethodOverloadException(String message, Throwable cause) {
+        /**
+         * desc.
+         * @param message
+         * @param cause
+         */
+        public MethodOverloadException(final String message,
+                                       final Throwable cause) {
             super(message, cause);
         }
 
-        public MethodOverloadException(Throwable cause) {
+        /**
+         * desc.
+         * @param cause
+         */
+        public MethodOverloadException(final Throwable cause) {
             super(cause);
         }
     }

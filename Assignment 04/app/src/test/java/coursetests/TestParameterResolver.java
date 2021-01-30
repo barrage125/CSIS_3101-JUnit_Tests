@@ -12,14 +12,17 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 public class TestParameterResolver implements ParameterResolver {
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext,
+                                     ExtensionContext extensionContext) throws
+            ParameterResolutionException {
         return true;
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        if (parameterContext.getParameter().getType() == String.class)
-        {
+    public Object resolveParameter(ParameterContext parameterContext,
+                                   ExtensionContext extensionContext) throws
+            ParameterResolutionException {
+        if (parameterContext.getParameter().getType() == String.class) {
             return parameterContext.getParameter().toString();
         }
         return null;
